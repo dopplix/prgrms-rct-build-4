@@ -35628,15 +35628,45 @@ var LOGOUT = 'LOGOUT';
 exports.LOGOUT = LOGOUT;
 var LIKE_POST = 'LIKE_POST';
 exports.LIKE_POST = LIKE_POST;
+},{}],"src/data/users/selectors.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getCurrentUser = exports.getUserByEmailPwd = void 0;
+
+var getUserByEmailPwd = function getUserByEmailPwd(state, email, pwd) {
+  var userArr = state.userReducer.users;
+  return userArr.find(function (element) {
+    return element.email === email && element.pwd === pwd;
+  });
+};
+
+exports.getUserByEmailPwd = getUserByEmailPwd;
+
+var getCurrentUser = function getCurrentUser(state) {
+  var currentUserId = state.userReducer.currentUserId;
+  var userArr = state.userReducer.users;
+  return userArr.find(function (element) {
+    return element.userId === currentUserId;
+  });
+};
+
+exports.getCurrentUser = getCurrentUser;
 },{}],"src/data/users/actions.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.likePost = exports.logout = exports.login = exports.addUser = void 0;
+exports.loginThunk = exports.likePost = exports.logout = exports.login = exports.addUser = void 0;
 
 var types = _interopRequireWildcard(require("./actionTypes"));
+
+var _connectedReactRouter = require("connected-react-router");
+
+var _selectors = require("./selectors");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
@@ -35677,7 +35707,25 @@ var likePost = function likePost(user, postId) {
 };
 
 exports.likePost = likePost;
-},{"./actionTypes":"src/data/users/actionTypes.js"}],"src/components/NavContainer.js":[function(require,module,exports) {
+
+var loginThunk = function loginThunk(email, pwd) {
+  return function (dispatch, getState) {
+    var state = getState();
+    var loggedInUser = (0, _selectors.getUserByEmailPwd)(state, email, pwd);
+    console.log(loggedInUser);
+
+    if (loggedInUser == null) {
+      alert("회원정보를 찾을 수 없습니다.");
+      return;
+    }
+
+    dispatch(login(loggedInUser.userId));
+    dispatch((0, _connectedReactRouter.push)('/'));
+  };
+};
+
+exports.loginThunk = loginThunk;
+},{"./actionTypes":"src/data/users/actionTypes.js","connected-react-router":"node_modules/connected-react-router/esm/index.js","./selectors":"src/data/users/selectors.js"}],"src/components/NavContainer.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -35989,355 +36037,7 @@ var ADD_POST = 'ADD_POST';
 exports.ADD_POST = ADD_POST;
 var INCREASE_LIKE = 'INCREASE_LIKE';
 exports.INCREASE_LIKE = INCREASE_LIKE;
-},{}],"src/data/posts/actions.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.increaseLike = exports.addPost = void 0;
-
-var types = _interopRequireWildcard(require("./actionTypes"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-var addPost = function addPost(newPost) {
-  return {
-    type: types.ADD_POST,
-    post: newPost
-  };
-};
-
-exports.addPost = addPost;
-
-var increaseLike = function increaseLike(postId) {
-  return {
-    type: types.INCREASE_LIKE,
-    postId: postId
-  };
-};
-
-exports.increaseLike = increaseLike;
-},{"./actionTypes":"src/data/posts/actionTypes.js"}],"src/data/comments/actionTypes.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ADD_COMMENT = void 0;
-var ADD_COMMENT = 'ADD_COMMENT';
-exports.ADD_COMMENT = ADD_COMMENT;
-},{}],"src/data/comments/actions.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.addComment = void 0;
-
-var types = _interopRequireWildcard(require("./actionTypes"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-var addComment = function addComment(newComment) {
-  return {
-    type: types.ADD_COMMENT,
-    comment: newComment
-  };
-};
-
-exports.addComment = addComment;
-},{"./actionTypes":"src/data/comments/actionTypes.js"}],"src/data/users/selectors.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getCurrentUser = exports.getUserByEmailPwd = void 0;
-
-var getUserByEmailPwd = function getUserByEmailPwd(state, email, pwd) {
-  var userArr = state.userReducer.users;
-  return userArr.find(function (element) {
-    return element.email === email && element.pwd === pwd;
-  });
-};
-
-exports.getUserByEmailPwd = getUserByEmailPwd;
-
-var getCurrentUser = function getCurrentUser(state) {
-  var currentUserId = state.userReducer.currentUserId;
-  var userArr = state.userReducer.users;
-  return userArr.find(function (element) {
-    return element.userId === currentUserId;
-  });
-};
-
-exports.getCurrentUser = getCurrentUser;
-},{}],"node_modules/redux-devtools-extension/index.js":[function(require,module,exports) {
-"use strict";
-
-var compose = require('redux').compose;
-
-exports.__esModule = true;
-exports.composeWithDevTools = (
-  typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
-    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ :
-    function() {
-      if (arguments.length === 0) return undefined;
-      if (typeof arguments[0] === 'object') return compose;
-      return compose.apply(null, arguments);
-    }
-);
-
-exports.devToolsEnhancer = (
-  typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION__ ?
-    window.__REDUX_DEVTOOLS_EXTENSION__ :
-    function() { return function(noop) { return noop; } }
-);
-
-},{"redux":"node_modules/redux/es/redux.js"}],"src/data/comments/reducers.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var types = _interopRequireWildcard(require("./actionTypes"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var initialState = {
-  comments: []
-};
-
-var _default = function _default() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
-  var action = arguments.length > 1 ? arguments[1] : undefined;
-
-  switch (action.type) {
-    case types.ADD_COMMENT:
-      return _objectSpread(_objectSpread({}, state), {}, {
-        comments: [].concat(_toConsumableArray(state.comments), [action.comment])
-      });
-
-    default:
-      return state;
-  }
-};
-
-exports.default = _default;
-},{"./actionTypes":"src/data/comments/actionTypes.js"}],"src/data/posts/reducers.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var types = _interopRequireWildcard(require("./actionTypes"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var initialState = {
-  posts: []
-};
-
-var _default = function _default() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
-  var action = arguments.length > 1 ? arguments[1] : undefined;
-
-  switch (action.type) {
-    case types.ADD_POST:
-      return _objectSpread(_objectSpread({}, state), {}, {
-        posts: [action.post].concat(_toConsumableArray(state.posts))
-      });
-
-    case types.INCREASE_LIKE:
-      return _objectSpread(_objectSpread({}, state), {}, {
-        posts: state.posts.map(function (post) {
-          return post.postId === action.postId ? _objectSpread(_objectSpread({}, post), {}, {
-            nLike: post.nLike + 1
-          }) : post;
-        })
-      });
-
-    default:
-      return state;
-  }
-};
-
-exports.default = _default;
-},{"./actionTypes":"src/data/posts/actionTypes.js"}],"src/data/users/reducers.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var types = _interopRequireWildcard(require("./actionTypes"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var initialState = {
-  users: []
-};
-
-var _default = function _default() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
-  var action = arguments.length > 1 ? arguments[1] : undefined;
-
-  switch (action.type) {
-    case types.ADD_USER:
-      return _objectSpread(_objectSpread({}, state), {}, {
-        users: [].concat(_toConsumableArray(state.users), [action.newUser])
-      });
-
-    case types.LOGIN:
-      return _objectSpread(_objectSpread({}, state), {}, {
-        currentUserId: action.loggedInUserId
-      });
-
-    case types.LOGOUT:
-      return _objectSpread(_objectSpread({}, state), {}, {
-        currentUserId: null
-      });
-
-    case types.LIKE_POST:
-      return _objectSpread(_objectSpread({}, state), {}, {
-        users: state.users.map(function (user) {
-          return user.userId === action.user.userId ? action.user : user;
-        })
-      });
-
-    default:
-      return state;
-  }
-};
-
-exports.default = _default;
-},{"./actionTypes":"src/data/users/actionTypes.js"}],"src/data/rootReducers.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _redux = require("redux");
-
-var _connectedReactRouter = require("connected-react-router");
-
-var _reducers = _interopRequireDefault(require("./comments/reducers"));
-
-var _reducers2 = _interopRequireDefault(require("./posts/reducers"));
-
-var _reducers3 = _interopRequireDefault(require("./users/reducers"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var _default = function _default(history) {
-  return (0, _redux.combineReducers)({
-    commentReducer: _reducers.default,
-    postReducer: _reducers2.default,
-    userReducer: _reducers3.default,
-    router: (0, _connectedReactRouter.connectRouter)(history)
-  });
-};
-
-exports.default = _default;
-},{"redux":"node_modules/redux/es/redux.js","connected-react-router":"node_modules/connected-react-router/esm/index.js","./comments/reducers":"src/data/comments/reducers.js","./posts/reducers":"src/data/posts/reducers.js","./users/reducers":"src/data/users/reducers.js"}],"src/data/configureStore.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.store = exports.history = void 0;
-
-var _redux = require("redux");
-
-var _connectedReactRouter = require("connected-react-router");
-
-var _history = require("history");
-
-var _reduxDevtoolsExtension = require("redux-devtools-extension");
-
-var _rootReducers = _interopRequireDefault(require("./rootReducers"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var history = (0, _history.createBrowserHistory)();
-exports.history = history;
-var rootReducer = (0, _rootReducers.default)(history);
-var enhancer = (0, _reduxDevtoolsExtension.composeWithDevTools)((0, _redux.applyMiddleware)((0, _connectedReactRouter.routerMiddleware)(history)));
-var store = (0, _redux.createStore)(rootReducer, enhancer);
-exports.store = store;
-},{"redux":"node_modules/redux/es/redux.js","connected-react-router":"node_modules/connected-react-router/esm/index.js","history":"node_modules/history/esm/history.js","redux-devtools-extension":"node_modules/redux-devtools-extension/index.js","./rootReducers":"src/data/rootReducers.js"}],"node_modules/uuid/dist/esm-browser/rng.js":[function(require,module,exports) {
+},{}],"node_modules/uuid/dist/esm-browser/rng.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37017,37 +36717,144 @@ var _v3 = _interopRequireDefault(require("./v4.js"));
 var _v4 = _interopRequireDefault(require("./v5.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./v1.js":"node_modules/uuid/dist/esm-browser/v1.js","./v3.js":"node_modules/uuid/dist/esm-browser/v3.js","./v4.js":"node_modules/uuid/dist/esm-browser/v4.js","./v5.js":"node_modules/uuid/dist/esm-browser/v5.js"}],"src/pages/Home/PostsContainer.js":[function(require,module,exports) {
+},{"./v1.js":"node_modules/uuid/dist/esm-browser/v1.js","./v3.js":"node_modules/uuid/dist/esm-browser/v3.js","./v4.js":"node_modules/uuid/dist/esm-browser/v4.js","./v5.js":"node_modules/uuid/dist/esm-browser/v5.js"}],"src/data/posts/actions.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
+exports.addPostThunk = exports.increaseLike = exports.addPost = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var types = _interopRequireWildcard(require("./actionTypes"));
 
 var _connectedReactRouter = require("connected-react-router");
 
-var _WriteForm = _interopRequireDefault(require("./WriteForm"));
-
-var _Post = _interopRequireDefault(require("./Post"));
-
-var _reactRedux = require("react-redux");
-
-var _actions = require("../../data/posts/actions");
-
-var _actions2 = require("../../data/comments/actions");
+var _uuid = require("uuid");
 
 var _selectors = require("../../data/users/selectors");
 
-var _actions3 = require("../../data/users/actions");
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
-var _configureStore = require("../../data/configureStore");
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-var _uuid = require("uuid");
+var addPost = function addPost(newPost) {
+  return {
+    type: types.ADD_POST,
+    post: newPost
+  };
+};
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+exports.addPost = addPost;
+
+var increaseLike = function increaseLike(postId) {
+  return {
+    type: types.INCREASE_LIKE,
+    postId: postId
+  };
+};
+
+exports.increaseLike = increaseLike;
+
+var addPostThunk = function addPostThunk(postText) {
+  return function (dispatch, getState) {
+    var currentUser = (0, _selectors.getCurrentUser)(getState());
+
+    if (currentUser == null) {
+      dispatch((0, _connectedReactRouter.push)('/login'));
+      return;
+    }
+
+    var newPost = {
+      content: postText,
+      dateTime: "10분전",
+      writer: currentUser.name,
+      postId: (0, _uuid.v1)(),
+      nLike: 0
+    };
+    dispatch(addPost(newPost));
+  };
+};
+
+exports.addPostThunk = addPostThunk;
+},{"./actionTypes":"src/data/posts/actionTypes.js","connected-react-router":"node_modules/connected-react-router/esm/index.js","uuid":"node_modules/uuid/dist/esm-browser/index.js","../../data/users/selectors":"src/data/users/selectors.js"}],"src/data/comments/actionTypes.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ADD_COMMENT = void 0;
+var ADD_COMMENT = 'ADD_COMMENT';
+exports.ADD_COMMENT = ADD_COMMENT;
+},{}],"src/data/comments/actions.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.addCommentThunk = exports.addComment = void 0;
+
+var types = _interopRequireWildcard(require("./actionTypes"));
+
+var _connectedReactRouter = require("connected-react-router");
+
+var _selectors = require("../../data/users/selectors");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+var addComment = function addComment(newComment) {
+  return {
+    type: types.ADD_COMMENT,
+    comment: newComment
+  };
+};
+
+exports.addComment = addComment;
+
+var addCommentThunk = function addCommentThunk(postId, commentText) {
+  return function (dispatch, getState) {
+    var currentUser = (0, _selectors.getCurrentUser)(getState());
+
+    if (currentUser == null) {
+      dispatch((0, _connectedReactRouter.push)('/login'));
+      return;
+    }
+
+    var newComment = {
+      content: commentText,
+      dateTime: "5분전",
+      writer: currentUser.name,
+      postId: postId
+    };
+    dispatch(addComment(newComment));
+  };
+};
+
+exports.addCommentThunk = addCommentThunk;
+},{"./actionTypes":"src/data/comments/actionTypes.js","connected-react-router":"node_modules/connected-react-router/esm/index.js","../../data/users/selectors":"src/data/users/selectors.js"}],"src/data/rootActionTypes.js":[function(require,module,exports) {
+
+},{}],"src/data/rootActions.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.likePostThunk = void 0;
+
+var types = _interopRequireWildcard(require("./rootActionTypes"));
+
+var _connectedReactRouter = require("connected-react-router");
+
+var _selectors = require("./users/selectors");
+
+var _actions = require("./users/actions");
+
+var _actions2 = require("./posts/actions");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
@@ -37061,6 +36868,50 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToAr
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
+var likePostThunk = function likePostThunk(postId) {
+  return function (dispatch, getState) {
+    var currentUser = (0, _selectors.getCurrentUser)(getState());
+
+    if (currentUser == null) {
+      dispatch((0, _connectedReactRouter.push)('/login'));
+      return;
+    }
+
+    if (currentUser.likedPosts.find(function (element) {
+      return element === postId;
+    }) == null) {
+      currentUser.likedPosts = [].concat(_toConsumableArray(currentUser.likedPosts), [postId]);
+      dispatch((0, _actions.likePost)(currentUser, postId));
+      dispatch((0, _actions2.increaseLike)(postId));
+    }
+  };
+};
+
+exports.likePostThunk = likePostThunk;
+},{"./rootActionTypes":"src/data/rootActionTypes.js","connected-react-router":"node_modules/connected-react-router/esm/index.js","./users/selectors":"src/data/users/selectors.js","./users/actions":"src/data/users/actions.js","./posts/actions":"src/data/posts/actions.js"}],"src/pages/Home/PostsContainer.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _WriteForm = _interopRequireDefault(require("./WriteForm"));
+
+var _Post = _interopRequireDefault(require("./Post"));
+
+var _reactRedux = require("react-redux");
+
+var _actions = require("../../data/posts/actions");
+
+var _actions2 = require("../../data/comments/actions");
+
+var _rootActions = require("../../data/rootActions");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 var mapStateToProps = function mapStateToProps(state) {
   return {
     posts: state.postReducer.posts,
@@ -37071,53 +36922,13 @@ var mapStateToProps = function mapStateToProps(state) {
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
     onShareButtonClicked: function onShareButtonClicked(postText) {
-      var currentUser = (0, _selectors.getCurrentUser)(_configureStore.store.getState());
-
-      if (currentUser == null) {
-        dispatch((0, _connectedReactRouter.push)('/login'));
-        return;
-      }
-
-      var newPost = {
-        content: postText,
-        dateTime: "10분전",
-        writer: currentUser.name,
-        postId: (0, _uuid.v1)(),
-        nLike: 0
-      };
-      dispatch((0, _actions.addPost)(newPost));
+      dispatch((0, _actions.addPostThunk)(postText));
     },
     onCommentButtonClicked: function onCommentButtonClicked(postId, commentText) {
-      var currentUser = (0, _selectors.getCurrentUser)(_configureStore.store.getState());
-
-      if (currentUser == null) {
-        dispatch((0, _connectedReactRouter.push)('/login'));
-        return;
-      }
-
-      var newComment = {
-        content: commentText,
-        dateTime: "5분전",
-        writer: currentUser.name,
-        postId: postId
-      };
-      dispatch((0, _actions2.addComment)(newComment));
+      dispatch((0, _actions2.addCommentThunk)(postId, commentText));
     },
     onLikeButtonClicked: function onLikeButtonClicked(postId) {
-      var currentUser = (0, _selectors.getCurrentUser)(_configureStore.store.getState());
-
-      if (currentUser == null) {
-        dispatch((0, _connectedReactRouter.push)('/login'));
-        return;
-      }
-
-      if (currentUser.likedPosts.find(function (element) {
-        return element === postId;
-      }) == null) {
-        currentUser.likedPosts = [].concat(_toConsumableArray(currentUser.likedPosts), [postId]);
-        dispatch((0, _actions3.likePost)(currentUser, postId));
-        dispatch((0, _actions.increaseLike)(postId));
-      }
+      dispatch((0, _rootActions.likePostThunk)(postId));
     }
   };
 };
@@ -37150,7 +36961,7 @@ var PostsContainer = function PostsContainer(_ref) {
 var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(PostsContainer);
 
 exports.default = _default;
-},{"react":"node_modules/react/index.js","connected-react-router":"node_modules/connected-react-router/esm/index.js","./WriteForm":"src/pages/Home/WriteForm.js","./Post":"src/pages/Home/Post.js","react-redux":"node_modules/react-redux/es/index.js","../../data/posts/actions":"src/data/posts/actions.js","../../data/comments/actions":"src/data/comments/actions.js","../../data/users/selectors":"src/data/users/selectors.js","../../data/users/actions":"src/data/users/actions.js","../../data/configureStore":"src/data/configureStore.js","uuid":"node_modules/uuid/dist/esm-browser/index.js"}],"src/pages/Home/index.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","./WriteForm":"src/pages/Home/WriteForm.js","./Post":"src/pages/Home/Post.js","react-redux":"node_modules/react-redux/es/index.js","../../data/posts/actions":"src/data/posts/actions.js","../../data/comments/actions":"src/data/comments/actions.js","../../data/rootActions":"src/data/rootActions.js"}],"src/pages/Home/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37233,13 +37044,7 @@ var _Login = _interopRequireDefault(require("./Login"));
 
 var _reactRedux = require("react-redux");
 
-var _configureStore = require("../../data/configureStore");
-
-var _selectors = require("../../data/users/selectors");
-
 var _actions = require("../../data/users/actions");
-
-var _connectedReactRouter = require("connected-react-router");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -37250,17 +37055,7 @@ var mapStateToProps = function mapStateToProps(state) {
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
     onLoginButtonClicked: function onLoginButtonClicked(email, pwd) {
-      var state = _configureStore.store.getState();
-
-      var loggedInUser = (0, _selectors.getUserByEmailPwd)(state, email, pwd);
-
-      if (loggedInUser == null) {
-        alert("회원정보를 찾을 수 없습니다.");
-        return;
-      }
-
-      dispatch((0, _actions.login)(loggedInUser.userId));
-      dispatch((0, _connectedReactRouter.push)('/'));
+      dispatch((0, _actions.loginThunk)(email, pwd));
     }
   };
 };
@@ -37268,7 +37063,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_Login.default);
 
 exports.default = _default;
-},{"./Login":"src/pages/Login/Login.js","react-redux":"node_modules/react-redux/es/index.js","../../data/configureStore":"src/data/configureStore.js","../../data/users/selectors":"src/data/users/selectors.js","../../data/users/actions":"src/data/users/actions.js","connected-react-router":"node_modules/connected-react-router/esm/index.js"}],"src/pages/Login/index.js":[function(require,module,exports) {
+},{"./Login":"src/pages/Login/Login.js","react-redux":"node_modules/react-redux/es/index.js","../../data/users/actions":"src/data/users/actions.js"}],"src/pages/Login/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37439,7 +37234,297 @@ var _default = function _default() {
 };
 
 exports.default = _default;
-},{"react":"node_modules/react/index.js","./SignUpContainer":"src/pages/SignUp/SignUpContainer.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","./SignUpContainer":"src/pages/SignUp/SignUpContainer.js"}],"node_modules/redux-devtools-extension/index.js":[function(require,module,exports) {
+"use strict";
+
+var compose = require('redux').compose;
+
+exports.__esModule = true;
+exports.composeWithDevTools = (
+  typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
+    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ :
+    function() {
+      if (arguments.length === 0) return undefined;
+      if (typeof arguments[0] === 'object') return compose;
+      return compose.apply(null, arguments);
+    }
+);
+
+exports.devToolsEnhancer = (
+  typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION__ ?
+    window.__REDUX_DEVTOOLS_EXTENSION__ :
+    function() { return function(noop) { return noop; } }
+);
+
+},{"redux":"node_modules/redux/es/redux.js"}],"node_modules/redux-thunk/es/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function createThunkMiddleware(extraArgument) {
+  return function (_ref) {
+    var dispatch = _ref.dispatch,
+        getState = _ref.getState;
+    return function (next) {
+      return function (action) {
+        if (typeof action === 'function') {
+          return action(dispatch, getState, extraArgument);
+        }
+
+        return next(action);
+      };
+    };
+  };
+}
+
+var thunk = createThunkMiddleware();
+thunk.withExtraArgument = createThunkMiddleware;
+var _default = thunk;
+exports.default = _default;
+},{}],"src/data/comments/reducers.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var types = _interopRequireWildcard(require("./actionTypes"));
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var initialState = {
+  comments: []
+};
+
+var _default = function _default() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+
+  switch (action.type) {
+    case types.ADD_COMMENT:
+      return _objectSpread(_objectSpread({}, state), {}, {
+        comments: [].concat(_toConsumableArray(state.comments), [action.comment])
+      });
+
+    default:
+      return state;
+  }
+};
+
+exports.default = _default;
+},{"./actionTypes":"src/data/comments/actionTypes.js"}],"src/data/posts/reducers.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var types = _interopRequireWildcard(require("./actionTypes"));
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var initialState = {
+  posts: []
+};
+
+var _default = function _default() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+
+  switch (action.type) {
+    case types.ADD_POST:
+      return _objectSpread(_objectSpread({}, state), {}, {
+        posts: [action.post].concat(_toConsumableArray(state.posts))
+      });
+
+    case types.INCREASE_LIKE:
+      return _objectSpread(_objectSpread({}, state), {}, {
+        posts: state.posts.map(function (post) {
+          return post.postId === action.postId ? _objectSpread(_objectSpread({}, post), {}, {
+            nLike: post.nLike + 1
+          }) : post;
+        })
+      });
+
+    default:
+      return state;
+  }
+};
+
+exports.default = _default;
+},{"./actionTypes":"src/data/posts/actionTypes.js"}],"src/data/users/reducers.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var types = _interopRequireWildcard(require("./actionTypes"));
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var initialState = {
+  users: []
+};
+
+var _default = function _default() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+
+  switch (action.type) {
+    case types.ADD_USER:
+      return _objectSpread(_objectSpread({}, state), {}, {
+        users: [].concat(_toConsumableArray(state.users), [action.newUser])
+      });
+
+    case types.LOGIN:
+      return _objectSpread(_objectSpread({}, state), {}, {
+        currentUserId: action.loggedInUserId
+      });
+
+    case types.LOGOUT:
+      return _objectSpread(_objectSpread({}, state), {}, {
+        currentUserId: null
+      });
+
+    case types.LIKE_POST:
+      return _objectSpread(_objectSpread({}, state), {}, {
+        users: state.users.map(function (user) {
+          return user.userId === action.user.userId ? action.user : user;
+        })
+      });
+
+    default:
+      return state;
+  }
+};
+
+exports.default = _default;
+},{"./actionTypes":"src/data/users/actionTypes.js"}],"src/data/rootReducers.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _redux = require("redux");
+
+var _connectedReactRouter = require("connected-react-router");
+
+var _reducers = _interopRequireDefault(require("./comments/reducers"));
+
+var _reducers2 = _interopRequireDefault(require("./posts/reducers"));
+
+var _reducers3 = _interopRequireDefault(require("./users/reducers"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _default = function _default(history) {
+  return (0, _redux.combineReducers)({
+    commentReducer: _reducers.default,
+    postReducer: _reducers2.default,
+    userReducer: _reducers3.default,
+    router: (0, _connectedReactRouter.connectRouter)(history)
+  });
+};
+
+exports.default = _default;
+},{"redux":"node_modules/redux/es/redux.js","connected-react-router":"node_modules/connected-react-router/esm/index.js","./comments/reducers":"src/data/comments/reducers.js","./posts/reducers":"src/data/posts/reducers.js","./users/reducers":"src/data/users/reducers.js"}],"src/data/configureStore.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.store = exports.history = void 0;
+
+var _redux = require("redux");
+
+var _connectedReactRouter = require("connected-react-router");
+
+var _history = require("history");
+
+var _reduxDevtoolsExtension = require("redux-devtools-extension");
+
+var _reduxThunk = _interopRequireDefault(require("redux-thunk"));
+
+var _rootReducers = _interopRequireDefault(require("./rootReducers"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var history = (0, _history.createBrowserHistory)();
+exports.history = history;
+var rootReducer = (0, _rootReducers.default)(history);
+var enhancer = (0, _reduxDevtoolsExtension.composeWithDevTools)((0, _redux.applyMiddleware)((0, _connectedReactRouter.routerMiddleware)(history), _reduxThunk.default));
+var store = (0, _redux.createStore)(rootReducer, enhancer);
+exports.store = store;
+},{"redux":"node_modules/redux/es/redux.js","connected-react-router":"node_modules/connected-react-router/esm/index.js","history":"node_modules/history/esm/history.js","redux-devtools-extension":"node_modules/redux-devtools-extension/index.js","redux-thunk":"node_modules/redux-thunk/es/index.js","./rootReducers":"src/data/rootReducers.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -37618,7 +37703,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61169" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56324" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
